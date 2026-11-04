@@ -96,7 +96,7 @@ if (laborDtlRow != null)
                 + Environment.NewLine 
                 + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
                 + Environment.NewLine
-                + "wipQtyAvailable <= 0m && hasEarlierOp && !isFai")
+                + "wipQtyAvailable <= 0m && hasEarlierOp && !isFai");
         }
     }
 }

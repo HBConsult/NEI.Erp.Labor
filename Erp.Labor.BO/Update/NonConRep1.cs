@@ -17,5 +17,3 @@ if (row != null && row.EndActivity == true && row.JCDept == "QC")
     throw new Ice.BLException("This job has a pending inspection requirement. QC Department operations cannot be completed until all pending inspections are complete.");
   }
 }
-
-//test change in file
