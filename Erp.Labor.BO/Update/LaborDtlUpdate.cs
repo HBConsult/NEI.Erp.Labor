@@ -18,6 +18,92 @@ if (laborDtlRow != null)
     if (laborDtlRow.EndActivity)
     {
         // methods for if it's an end activity operation
+
+        // added for feature testing
+        bool isFinalOp = laborDtlRow.AssemblySeq == 0
+            && !Db.JobOper.Any(f =>
+                f.Company == laborDtlRow.Company
+                && f.JobNum == laborDtlRow.JobNum
+                && f.AssemblySeq == 0
+                && f.OprSeq > laborDtlRow.OprSeq);
+
+        if (isFinalOp)
+        {
+            //check for JRTI conditions
+            bool openDmr = Db.DMRHead.Any(d =>
+                d.Company == laborDtlRow.Company 
+                && d.JobNum == laborDtlRow.JobNum
+                && (d.OpenDMR 
+                    || (d.TotRejectedQty + d.TotAcceptedQty < d.TotDiscrepantQty)));
+
+            if (openDmr && (((decimal?)laborDtlRow.LaborQty ?? 0m) > 0m || laborDtlRow.OpComplete))
+            {
+                throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when an open and/or un-dispositioned DMR exists on the job."
+                    + Environment.NewLine
+                    + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
+                    + Environment.NewLine
+                    + "openDMR");
+            }
+
+            bool pendingInspection = Db.NonConf.Any(n =>
+                n.Company == laborDtlRow.Company
+                && n.JobNum == laborDtlRow.JobNum
+                && n.InspectionPending == true);
+
+            if (pendingInspection && (((decimal?)laborDtlRow.LaborQty ?? 0m) > 0m || laborDtlRow.OpComplete))
+            {
+                throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when a Nonconformance inspection is still pending."
+                    + Environment.NewLine
+                    + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
+                    + Environment.NewLine
+                    + "pendingInspection");
+            }
+
+            bool openOps = Db.JobOper.Any(p =>
+                p.Company == laborDtlRow.Company
+                && p.JobNum == laborDtlRow.JobNum
+                && !p.OpComplete
+                && ((p.AssemblySeq == laborDtlRow.AssemblySeq && p.OprSeq < laborDtlRow.OprSeq) 
+                    || p.AssemblySeq != laborDtlRow.AssemblySeq));
+
+            if (openOps && (((decimal?)laborDtlRow.LaborQty ?? 0m) > 0m || laborDtlRow.OpComplete))
+            {
+                throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when an incomplete previous operation exists."
+                    + Environment.NewLine
+                    + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
+                    + Environment.NewLine
+                    + "openOps");
+            }
+
+            bool openMtl = Db.JobMtl.Any(t =>
+                t.Company == laborDtlRow.Company 
+                && t.JobNum == laborDtlRow.JobNum
+                && (!t.IssuedComplete || t.IssuedQty < t.RequiredQty));
+
+            if (openMtl && (((decimal?)laborDtlRow.LaborQty ?? 0m) > 0m || laborDtlRow.OpComplete))
+            {
+                throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when a material sequence is incomplete or un-issued."
+                    + Environment.NewLine
+                    + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
+                    + Environment.NewLine
+                    + "openMtl");
+            }
+
+            bool openLaborTrans = Db.LaborDtl.Any(l =>
+                l.Company == laborDtlRow.Company
+                && l.JobNum == laborDtlRow.JobNum
+                && (l.ActiveTrans || l.TimeStatus == "E"));
+
+            if (openLaborTrans && (((decimal?)laborDtlRow.LaborQty ?? 0m) > 0m || laborDtlRow.OpComplete))
+            {
+                throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when an active or unapproved labor transaction is pending."
+                    + Environment.NewLine
+                    + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
+                    + Environment.NewLine
+                    + "openLaborTrans");
+            }
+        }
+        //end add
         if (laborDtlRow.DiscrepQty > 0 && (string.IsNullOrWhiteSpace(laborDtlRow.LaborNote) || laborDtlRow.LaborNote == "Feature: " + Environment.NewLine + "Drawing: " + Environment.NewLine + "Location: " + Environment.NewLine + "Actual Measurement / Condition: "))
         {
             throw new Ice.BLException("If logging a non-conformance, you must enter notes detailing the issue(s) with the part(s)."
@@ -44,15 +130,6 @@ if (laborDtlRow != null)
                     + Environment.NewLine
                     + "hasInspection");
             }
-        }
-
-        if (wipQtyAvailable <= 0m)
-        {
-            throw new Ice.BLException("No job wip available to complete any quantity on this operation. Please locate job wip." 
-                + Environment.NewLine 
-                + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate" 
-                + Environment.NewLine 
-                + "!wipAvailable");
         }
 
         Decimal endActivityQty = 
@@ -96,7 +173,7 @@ if (laborDtlRow != null)
                 + Environment.NewLine 
                 + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
                 + Environment.NewLine
-                + "wipQtyAvailable <= 0m && hasEarlierOp && !isFai")
+                + "wipQtyAvailable <= 0m && hasEarlierOp && !isFai");
         }
     }
 }
