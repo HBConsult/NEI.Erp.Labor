@@ -40,6 +40,9 @@ if (laborDtlRow != null)
             {
                 throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when an open and/or un-dispositioned DMR exists on the job."
                     + Environment.NewLine
+                    + Environment.NewLine
+                    + "//*****************//"
+                    + Environment.NewLine
                     + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
                     + Environment.NewLine
                     + "openDMR");
@@ -53,6 +56,9 @@ if (laborDtlRow != null)
             if (pendingInspection && (((decimal?)laborDtlRow.LaborQty ?? 0m) > 0m || laborDtlRow.OpComplete))
             {
                 throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when a Nonconformance inspection is still pending."
+                    + Environment.NewLine
+                    + Environment.NewLine
+                    + "//*****************//"
                     + Environment.NewLine
                     + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
                     + Environment.NewLine
@@ -70,6 +76,9 @@ if (laborDtlRow != null)
             {
                 throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when an incomplete previous operation exists."
                     + Environment.NewLine
+                    + Environment.NewLine
+                    + "//*****************//"
+                    + Environment.NewLine
                     + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
                     + Environment.NewLine
                     + "openOps");
@@ -83,6 +92,9 @@ if (laborDtlRow != null)
             if (openMtl && (((decimal?)laborDtlRow.LaborQty ?? 0m) > 0m || laborDtlRow.OpComplete))
             {
                 throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when a material sequence is incomplete or un-issued."
+                    + Environment.NewLine
+                    + Environment.NewLine
+                    + "//*****************//"
                     + Environment.NewLine
                     + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
                     + Environment.NewLine
@@ -98,6 +110,9 @@ if (laborDtlRow != null)
             {
                 throw new Ice.BLException("Final operation cannot be completed or any quantity logged complete when an active or unapproved labor transaction is pending."
                     + Environment.NewLine
+                    + Environment.NewLine
+                    + "//*****************//"
+                    + Environment.NewLine
                     + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
                     + Environment.NewLine
                     + "openLaborTrans");
@@ -107,6 +122,9 @@ if (laborDtlRow != null)
         if (laborDtlRow.DiscrepQty > 0 && (string.IsNullOrWhiteSpace(laborDtlRow.LaborNote) || laborDtlRow.LaborNote == "Feature: " + Environment.NewLine + "Drawing: " + Environment.NewLine + "Location: " + Environment.NewLine + "Actual Measurement / Condition: "))
         {
             throw new Ice.BLException("If logging a non-conformance, you must enter notes detailing the issue(s) with the part(s)."
+                + Environment.NewLine
+                + Environment.NewLine
+                + "//*****************//"
                 + Environment.NewLine
                 + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
                 + Environment.NewLine
@@ -126,6 +144,8 @@ if (laborDtlRow != null)
                     + Environment.NewLine
                     + "QC Department operations cannot be completed until all pending inspections are complete."
                     + Environment.NewLine
+                    + Environment.NewLine
+                    + "//*****************//"
                     + "Erp.Labor.Update.PreProc.LaborDtlUpdate"
                     + Environment.NewLine
                     + "hasInspection");
@@ -144,6 +164,8 @@ if (laborDtlRow != null)
             + Environment.NewLine
             + "Please see your supervisor."
             + Environment.NewLine
+            + Environment.NewLine
+            + "//*****************//"
             + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
             + Environment.NewLine
             + "endActivityQty > wipQty");
@@ -170,7 +192,9 @@ if (laborDtlRow != null)
             throw new Ice.BLException($"No wip available for Job Number: {laborDtlRow.JobNum}, Operation: {laborDtlRow.OprSeq}."
                 + Environment.NewLine 
                 + "Please locate the wip and contact your supervisor or foreman."
-                + Environment.NewLine 
+                + Environment.NewLine
+                + Environment.NewLine
+                + "//*****************//"
                 + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate"
                 + Environment.NewLine
                 + "wipQtyAvailable <= 0m && hasEarlierOp && !isFai");
