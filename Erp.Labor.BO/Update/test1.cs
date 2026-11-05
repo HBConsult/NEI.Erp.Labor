@@ -132,14 +132,14 @@ if (laborDtlRow != null)
             }
         }
 
-        if (wipQtyAvailable <= 0m)
-        {
-            throw new Ice.BLException("No job wip available to complete any quantity on this operation. Please locate job wip." 
-                + Environment.NewLine 
-                + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate" 
-                + Environment.NewLine 
-                + "!wipAvailable");
-        }
+        // if (wipQtyAvailable <= 0m && laborDtlRow.OpComplete)
+        // {
+        //     throw new Ice.BLException("No job wip available to complete any quantity on this operation. Please locate job wip." 
+        //         + Environment.NewLine 
+        //         + "Erp.Labor.BO.Update.PreProc.LaborDtlUpdate" 
+        //         + Environment.NewLine 
+        //         + "!wipAvailable");
+        // }
 
         Decimal endActivityQty = 
             ((decimal?)laborDtlRow.LaborQty ?? 0m)
